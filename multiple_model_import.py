@@ -43,7 +43,7 @@ light = bpy.data.objects.new('light', light_data)
 bpy.context.collection.objects.link(light)
 
 # light location and energy
-light.location = (3, 4, -5)
+light.location = (30, 20, 50)
 light.data.energy = 200.0
 
 # we first create the camera object
@@ -61,7 +61,9 @@ scene.render.image_settings.file_format='PNG'
 scene.render.engine = 'CYCLES'
 scene.cycles.device = 'GPU'
 scene.cycles.use_denoising = True
-scene.cycles.denoiser = 'OPENIMAGEDENOISE'
+#scene.cycles.denoiser = 'OPENIMAGEDENOISE'
+scene.cycles.denoiser = 'OPTIX'
+scene.cycles.use_preview_denoising = True
 
 
 # render scene

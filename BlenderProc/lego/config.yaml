@@ -1,0 +1,149 @@
+# Args: <cam_file> <obj_file> <output_dir>
+{
+  "version": 3,
+  "setup": {
+    "blender_install_path": "/home_local/<env:USER>/blender/",
+    "pip": [
+      "h5py"
+    ]
+  },
+  "modules": [
+    {
+      "module": "main.Initializer",
+      "config":{
+        "global": {
+          "output_dir": "<args:2>"
+        }
+      }
+    },
+    #{
+    #  "module": "loader.ObjectLoader",
+    #  "config": {
+    #    "path": "<args:1>"
+    #  }
+    #},
+    {
+      "module": "loader.BlendLoader",
+      "config": {
+        "path": "<args:1>",              #<-------- path to a .blend file
+        "datablocks": ["objects", "materials"],  #<-------- datablock name/ID
+        #"obj_types": ["mesh"],                   #<-------- object types
+        #"entities": ".*abc.*"                    #<-------- regular expression, load everything in the folder if not given
+      }
+    },
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": 'Plane',
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 0
+      }
+    },
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": '[0-9_]*3005.*',
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 3005
+      }
+    },
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": '[0-9_]*3245.*',
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 3245
+      }
+    },
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": '[0-9_]*3010.*',
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 3010
+      }
+    },
+    {
+      "module": "lighting.LightLoader",
+      "config": {
+        "lights": [
+          {
+            "type": "POINT",
+            "location": [5, 0, 5],
+            "energy": 1000
+          }
+        ]
+      }
+    },
+    {
+      "module": "camera.CameraLoader",
+      "config": {
+        "path": "<args:0>",
+        "file_format": "location rotation/value",
+        "intrinsics": {
+          "fov": 1,
+          #"resolution_x": 1280,
+          #"resolution_y": 720
+          "resolution_x": 1920,
+          "resolution_y": 1080
+        }
+      }
+    },
+    {
+      "module": "renderer.RgbRenderer",
+      "config": {
+        "output_key": "colors",
+        "samples": 400,
+        "render_normals": True,
+        "normals_output_key": "normals",
+        "render_distance": True,
+        "distance_output_key": "distance",
+        "render_diffuse_color": True
+      }
+    },
+    {
+      "module": "renderer.SegMapRenderer",
+      "config": {
+        #"map_by": ["class", "instance", "name"]
+        "map_by": ["class", "instance"]
+      }
+    },
+    {
+      "module": "writer.CocoAnnotationsWriter",
+      "config": {
+      }
+    },
+    {
+      "module": "writer.Hdf5Writer",
+      "config": {
+        "postprocessing_modules": {
+          "distance": [
+            {
+              "module": "postprocessing.TrimRedundantChannels",
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
