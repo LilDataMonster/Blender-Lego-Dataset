@@ -16,12 +16,7 @@
         }
       }
     },
-    #{
-    #  "module": "loader.ObjectLoader",
-    #  "config": {
-    #    "path": "<args:1>"
-    #  }
-    #},
+    # load blend file
     {
       "module": "loader.BlendLoader",
       "config": {
@@ -31,6 +26,7 @@
         #"entities": ".*abc.*"                    #<-------- regular expression, load everything in the folder if not given
       }
     },
+    # define plane as category 0
     {
       "module": "manipulators.EntityManipulator",
       "config": {
@@ -41,48 +37,129 @@
             "type": "MESH"
           }
         },
-        "cp_category_id": 0
+        "cp_category_id": 0,
+        "cp_physics": False
       }
     },
+    # define label for 3005
     {
       "module": "manipulators.EntityManipulator",
       "config": {
         "selector": {
           "provider": "getter.Entity",
           "conditions": {
-            "name": '[0-9_]*3005.*',
+            "name": '[0-9]+_3005.*.dat',
             "type": "MESH"
           }
         },
-        "cp_category_id": 3005
+        "cp_category_id": 3005,
+        "cp_physics": False #TODO fix why issues when enabling physics for this mesh?
       }
     },
+    # define label for 3245
     {
       "module": "manipulators.EntityManipulator",
       "config": {
         "selector": {
           "provider": "getter.Entity",
           "conditions": {
-            "name": '[0-9_]*3245.*',
+            "name": '[0-9]+_3245.*.dat',
             "type": "MESH"
           }
         },
-        "cp_category_id": 3245
+        "cp_category_id": 3245,
+        "cp_physics": True
       }
     },
+    # define label for 3010
     {
       "module": "manipulators.EntityManipulator",
       "config": {
         "selector": {
           "provider": "getter.Entity",
           "conditions": {
-            "name": '[0-9_]*3010.*',
+            "name": '[0-9]+_3010.*.dat',
             "type": "MESH"
           }
         },
-        "cp_category_id": 3010
+        "cp_category_id": 3010,
+        "cp_physics": True
       }
     },
+    {
+      "module": "object.OnSurfaceSampler",
+      "config": {
+        "objects_to_sample": {                      # mesh objects to sample on the surface
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": "[0-9]+_.*.dat"                     # we select all UV spheres and Icospheres
+          }
+        },
+        "surface": {                                # the object to use as a surface to sample on
+          "provider": "getter.Entity",
+          "index": 0,                               # make sure the Provider returns only one object
+          "conditions": {
+            "name": "Plane"                          # Cube in the scene is selected
+          }
+        },
+        "pos_sampler": {
+          "provider": "sampler.UpperRegionSampler",
+          "to_sample_on": {                         # select it again, but inside the sampler to define the upper region the space above the Cube
+            "provider": "getter.Entity",
+            "index": 0,                             # returns only the first object to satisfy the conditions
+            "conditions": {
+              "name": "Plane"                        # same Cube is selected
+            }
+          },
+          "min_height": 1,                          # points sampled in this space will have height varying in this min-max range
+          "max_height": 4,                          # this range also helps the module to satisfy the non-intersecting bounding boxes checks for the sampled objects and the surface faster
+          "use_ray_trace_check": False,
+        },
+        "min_distance": 0.1,                        # minimal distance between sampled objects
+        "max_distance": 10,                         # and a maximal distance. The smaller the min-max range, the more tries the module can take to sample the appropriate location
+        "rot_sampler": {                            # uniformly sample rotation
+          "provider": "sampler.Uniform3d",
+          "max": [0,0,0],
+          "min": [6.28,6.28,6.28]
+        }
+      }
+    },
+#    # get all mesh objects that are legos and apply transformation
+#    {
+#      "module": "manipulators.EntityManipulator",
+#      "config": {
+#        "selector": {
+#          "provider": "getter.Entity",
+#          "check_empty": True,
+#          "conditions": {
+#            "name": '[0-9]+_.*\.dat',
+#            "type": "MESH"
+#          }
+#        },
+#        "location": {
+#          "provider": "sampler.Uniform3d",
+#          "max":[1, 2, 3],
+#          "min":[0, 1, 2]
+#        },
+#        "rotation_euler": { # radians
+#          "provider": "sampler.Uniform3d",
+#          "max":[3.1415, 3.1415, 3.1415],
+#          "min":[-3.1415, -3.1415, -3.1415]
+#        },
+#        #"rotation_euler": [1, 1, 0],
+#        "cp_physics": True
+#      }
+#    },
+    # apply physics
+    {
+      "module": "object.PhysicsPositioning",
+      "config": {
+        "min_simulation_time": 2,
+        "max_simulation_time": 4,
+        "check_object_interval": 1
+      }
+    },
+    # create lighting source
     {
       "module": "lighting.LightLoader",
       "config": {
@@ -95,6 +172,7 @@
         ]
       }
     },
+    # create camera locations from file
     {
       "module": "camera.CameraLoader",
       "config": {
@@ -109,6 +187,7 @@
         }
       }
     },
+    # create RGB renderer
     {
       "module": "renderer.RgbRenderer",
       "config": {
@@ -121,6 +200,7 @@
         "render_diffuse_color": True
       }
     },
+    # create map segmentation based on category_id
     {
       "module": "renderer.SegMapRenderer",
       "config": {
@@ -128,11 +208,14 @@
         "map_by": ["class", "instance"]
       }
     },
+    # create coco annotations
     {
       "module": "writer.CocoAnnotationsWriter",
       "config": {
+        "append_to_existing_output": True
       }
     },
+    # save data to hdf5
     {
       "module": "writer.Hdf5Writer",
       "config": {
@@ -142,7 +225,8 @@
               "module": "postprocessing.TrimRedundantChannels",
             }
           ]
-        }
+        },
+        "append_to_existing_output": True
       }
     }
   ]
