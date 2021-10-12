@@ -53,7 +53,7 @@
           }
         },
         "cp_category_id": 3005,
-        "cp_physics": False #TODO fix why issues when enabling physics for this mesh?
+        "cp_physics": True
       }
     },
     # define label for 3245
@@ -92,7 +92,8 @@
         "objects_to_sample": {                      # mesh objects to sample on the surface
           "provider": "getter.Entity",
           "conditions": {
-            "name": "[0-9]+_.*.dat"                     # we select all UV spheres and Icospheres
+            "name": "[0-9]+_.*.dat",                     # we select all UV spheres and Icospheres
+            "type": "MESH"
           }
         },
         "surface": {                                # the object to use as a surface to sample on
