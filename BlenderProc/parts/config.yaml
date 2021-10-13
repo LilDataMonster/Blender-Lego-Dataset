@@ -1,0 +1,287 @@
+# Args: <cam_file> <obj_file> <textures_dir> <output_dir>
+{
+  "version": 3,
+  "setup": {
+    "blender_install_path": "/home_local/<env:USER>/blender/",
+    "pip": [
+      "h5py"
+    ]
+  },
+  "modules": [
+    {
+      "module": "main.Initializer",
+      "config":{
+        "global": {
+          "output_dir": "<args:3>"
+        }
+      }
+    },
+    {
+      "module": "loader.CCMaterialLoader",
+      # you can use the scripts/download_cc_textures.py to download them
+      "config": {
+        "folder_path": "<args:2>",
+        # "used_assets": ["AR", "Bricks", "Wood", "Carpet", "Tile", "Marble"],
+        # "preload": True,
+        # "cf_set_world_category_id": 0  # this sets the worlds background category id to 0
+
+      }
+    },
+    # load blend file
+    {
+      "module": "loader.BlendLoader",
+      "config": {
+        "path": "<args:1>",              #<-------- path to a .blend file
+        "datablocks": ["objects", "materials"],  #<-------- datablock name/ID
+        #"obj_types": ["mesh"],                   #<-------- object types
+        #"entities": ".*abc.*"                    #<-------- regular expression, load everything in the folder if not given
+      }
+    },
+    # create ground plane
+    {
+      "module": "constructor.BasicMeshInitializer",
+      "config": {
+        "meshes_to_add": [
+        {
+          "type": "plane",
+          "name": "ground_plane",
+          "scale": [10, 6, 1]
+        },
+        ]
+      }
+    },
+    # define plane as category 0
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": "ground_plane",
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 0,
+        "cp_physics": False,
+        "cf_add_uv_mapping": {
+          "projection": "smart"
+        },
+        # "scale": [10, 5, 1],
+        "cf_randomize_materials": {
+          "randomization_level": 1,
+          "materials_to_replace_with": {
+            "provider": "getter.Material",
+            "random_samples": 1,
+            "conditions": {
+              "cp_is_cc_texture": True  # this will return one random loaded cc textures
+            }
+          }
+        }
+      }
+    },
+    # define label for 3005
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": "[0-9]+_3005.*.dat",
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 3005,
+        "cp_physics": True
+      }
+    },
+    # define label for 3245
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": "[0-9]+_3245.*.dat",
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 3245,
+        "cp_physics": True
+      }
+    },
+    # define label for 3010
+    {
+      "module": "manipulators.EntityManipulator",
+      "config": {
+        "selector": {
+          "provider": "getter.Entity",
+          "conditions": {
+            "name": "[0-9]+_3010.*.dat",
+            "type": "MESH"
+          }
+        },
+        "cp_category_id": 3010,
+        "cp_physics": True
+      }
+    },
+    {
+      "module": "object.OnSurfaceSampler",
+      "config": {
+        "objects_to_sample": {                      # mesh objects to sample on the surface
+          "provider": "getter.Entity",
+          "conditions": {
+            "cp_physics": True        # select all objects with physics == True
+            # "name": "[0-9]+_.*.dat",                     # we select all UV spheres and Icospheres
+            # "type": "MESH"
+          },
+          "max_iterations": 2000
+        },
+        "surface": {                                # the object to use as a surface to sample on
+          "provider": "getter.Entity",
+          "index": 0,                               # make sure the Provider returns only one object
+          "conditions": {
+            "name": "ground_plane"                          # Cube in the scene is selected
+          }
+        },
+        "min_distance": 0.8,                        # minimal distance between sampled objects
+        # "max_distance": 5,                         # and a maximal distance. The smaller the min-max range, the more tries the module can take to sample the appropriate location
+        "max_distance": 5,                         # and a maximal distance. The smaller the min-max range, the more tries the module can take to sample the appropriate location
+        # "pos_sampler": {
+        #   "provider": "sampler.UpperRegionSampler",
+        #   "to_sample_on": {                         # select it again, but inside the sampler to define the upper region the space above the Cube
+        #     "provider": "getter.Entity",
+        #     "index": 0,
+        #     "conditions": {
+        #       "name": "ground_plane"
+        #     }
+        #   },
+        #   "min_height": 1,                          # points sampled in this space will have height varying in this min-max range
+        #   "max_height": 4,                          # this range also helps the module to satisfy the non-intersecting bounding boxes checks for the sampled objects and the surface faster
+        #   "face_sample_range": [0.4, 0.6],
+        #   "use_ray_trace_check": False,
+        # },
+        # "rot_sampler": {                            # uniformly sample rotation
+        #   "provider": "sampler.Uniform3d",
+        #   "max": [0, 0, 0],
+        #   "min": [0, 0, 6.28]
+        #   # "min": [6.28,6.28,6.28]
+        # }.
+        "pos_sampler": {
+          "provider": "sampler.Uniform3d",
+          "max": [2.5, 1.5, 0.2],
+          "min": [-2.5, -1.5, 0.2]
+        },
+        "rot_sampler": {
+          "provider": "sampler.Uniform3d",
+          "max": [6.28, 6.28, 6.28],
+          "min": [0, 0, 0]
+        }
+      }
+    },
+    # apply physics
+    {
+      "module": "object.PhysicsPositioning",
+      "config": {
+        "min_simulation_time": 2,
+        "max_simulation_time": 4,
+        "check_object_interval": 1
+      }
+    },
+    # # create lighting source
+    # {
+    #   "module": "lighting.LightLoader",
+    #   "config": {
+    #     "lights": [
+    #       {
+    #         "type": "POINT",
+    #         "location": [3, 3, 6],
+    #         "energy": 1000
+    #       }
+    #     ]
+    #   }
+    # },
+    # add additional lighting source
+    {
+      "module": "lighting.LightSampler",
+      "config": {
+        "lights": [
+        {
+          "location": {
+            "provider": "sampler.Shell",
+            "center": [0, 0, 0],
+            "radius_min": 1,
+            "radius_max": 1.5,
+            "elevation_min": 5,
+            "elevation_max": 89,
+            "uniform_elevation": True
+          },
+          "color": {
+            "provider": "sampler.Color",
+            "min": [0.5, 0.5, 0.5, 1.0],
+            "max": [1.0, 1.0, 1.0, 1.0]
+          },
+          "type": "POINT",
+          "energy": 200
+        }
+        ]
+      }
+    },
+    # create camera locations from file
+    {
+      "module": "camera.CameraLoader",
+      "config": {
+        "path": "<args:0>",
+        "file_format": "location rotation/value",
+        "intrinsics": {
+          "fov": 2,
+          "resolution_x": 1280,
+          "resolution_y": 720
+          # "resolution_x": 1920,
+          # "resolution_y": 1080
+        }
+      }
+    },
+    # create RGB renderer
+    {
+      "module": "renderer.RgbRenderer",
+      "config": {
+        "output_key": "colors",
+        "samples": 400,
+        "render_normals": True,
+        "normals_output_key": "normals",
+        "render_distance": True,
+        "distance_output_key": "distance",
+        "render_diffuse_color": True
+      }
+    },
+    # create map segmentation based on category_id
+    {
+      "module": "renderer.SegMapRenderer",
+      "config": {
+        #"map_by": ["class", "instance", "name"]
+        "map_by": ["class", "instance"]
+      }
+    },
+    # create coco annotations
+    {
+      "module": "writer.CocoAnnotationsWriter",
+      "config": {
+        "append_to_existing_output": True
+      }
+    },
+    # save data to hdf5
+    {
+      "module": "writer.Hdf5Writer",
+      "config": {
+        "postprocessing_modules": {
+          "distance": [
+            {
+              "module": "postprocessing.TrimRedundantChannels",
+            }
+          ]
+        },
+        "append_to_existing_output": True
+      }
+    }
+  ]
+}

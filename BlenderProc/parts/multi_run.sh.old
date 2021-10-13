@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /home/panda/LDraw/BlenderProc
+python rerun.py ../Blender-Lego-Dataset/BlenderProc/parts/config.yaml ../Blender-Lego-Dataset/BlenderProc/parts/camera_positions ../Blender-Lego-Dataset/BlenderProc/parts/generated_blend.blend resources/cctextures ../Blender-Lego-Dataset/BlenderProc/parts/output
