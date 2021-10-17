@@ -25,7 +25,7 @@ for obj in objs:
     category_id = re.sub('^[0-9]+_', '', obj.get_name())
     category_id = re.sub('.dat', '', category_id)
     category_id = re.sub('b', '', category_id) # remove 'b'
-    # print(f'Setting {obj.get_name()} to category {category_id}')
+    print(f'Setting {obj.get_name()} to category {category_id}')
     obj.set_cp("category_id", category_id)
     obj.enable_rigidbody(active=True)
     # print(dir(obj))
@@ -33,36 +33,39 @@ for obj in objs:
 ####################################
 # Define a light
 ####################################
+print('Setting up lighting')
 light = bproc.types.Light()
 light.set_type("POINT")
 # Sample its location in a shell around the point [0, 0, 0]
 light.set_location(bproc.sampler.shell(
     center=[-3, 0, 0],
-    radius_min=1,
-    radius_max=1.5,
+    radius_min=5,
+    radius_max=9,
     elevation_min=20,
     elevation_max=89
 ))
-light.set_energy(300)
+light.set_energy(200)
 
 ####################################
 # Define a light
 ####################################
+print('Setting up lighting')
 lightr = bproc.types.Light()
 lightr.set_type("POINT")
 # Sample its location in a shell around the point [0, 0, 0]
 lightr.set_location(bproc.sampler.shell(
     center=[3, 0, 0],
-    radius_min=1,
-    radius_max=1.5,
+    radius_min=5,
+    radius_max=9,
     elevation_min=20,
     elevation_max=89
 ))
-lightr.set_energy(300)
+lightr.set_energy(200)
 
 ####################################
 # define the camera intrinsics
 ####################################
+print('Setting up camera')
 bproc.camera.set_resolution(1280, 720)
 bproc.camera.set_intrinsics_from_blender_params(lens=2, lens_unit='FOV')
 
@@ -77,6 +80,7 @@ with open(args.camera, "r") as f:
 ####################################
 # load all recommended cc materials
 ####################################
+print('Setting up materials')
 cc_used_assets = ["Bricks", "Wood", "Carpet", "Tile", "Marble","Fabric",
                   "Ground", "Rock", "Metal", "Concrete", "Leather", "Gravel",
                   "Asphalt", "Plank", "Terrazzo", "Paint", "Carpet", "Plastic",
@@ -88,6 +92,7 @@ cc_textures = bproc.loader.load_ccmaterials(args.cc_material_path,
 ####################################
 # create the ground
 ####################################
+print('Setting up ground plane')
 random_cc_texture = np.random.choice(cc_textures)
 ground_plane = bproc.object.create_primitive('PLANE', scale=[10, 6, 1])
 ground_plane.replace_materials(random_cc_texture)
@@ -99,6 +104,7 @@ ground_plane.enable_rigidbody(active=False, collision_shape="MESH")
 ####################################
 # sample objects ontop of surface
 ####################################
+print('Setting up object positioning')
 # define a function that samples the initial pose of a given object above the ground
 def sample_initial_pose(obj: bproc.types.MeshObject):
     obj.set_location(bproc.sampler.upper_region(objects_to_sample_on=ground_plane,
@@ -116,6 +122,7 @@ placed_objects = bproc.object.sample_poses_on_surface(objects_to_sample=objs,
 ####################################
 # physics positioning
 ####################################
+print('Setting up simulated physics')
 bproc.object.simulate_physics_and_fix_final_poses(min_simulation_time=2,
                                                   max_simulation_time=20,
                                                   check_object_interval=1,
@@ -125,6 +132,7 @@ bproc.object.simulate_physics_and_fix_final_poses(min_simulation_time=2,
 ####################################
 # Render
 ####################################
+print('Setting up render')
 # activate distance rendering and set amount of samples for color rendering
 # bproc.renderer.enable_distance_output()
 # bproc.renderer.enable_normals_output()
@@ -143,6 +151,7 @@ data.update(seg_data)
 ####################################
 # write data
 ####################################
+print('Setting up file saves')
 
 # # write the data to a .hdf5 container
 # bproc.writer.write_hdf5(args.output_dir,
