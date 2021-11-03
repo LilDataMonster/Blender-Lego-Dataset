@@ -1,21 +1,21 @@
 version: '3'
 
 services:
-  s3fs:
-    privileged: true
-    image: efrecon/s3fs:1.86
-    restart: always
-    env_file: .env
-    #environment:
-    #  - AWS_S3_BUCKET=${AWS_S3_BUCKET}
-    #  - AWS_S3_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-    #  - AWS_S3_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-    #  # A workaround for bucket names containing '.' until the related s3fs-fuse issue is resolved
-    #  # Keep in mind this is a secrutiy risk (default is https)
-    #  # - AWS_S3_URL=http://s3.amazonaws.com
-    volumes:
-    # This also mounts the S3 bucket to `/mnt/s3data` on the host machine
-      - /mnt/s3data:/opt/s3fs/bucket:shared
+#  s3fs:
+#    privileged: true
+#    image: efrecon/s3fs:1.86
+#    restart: always
+#    env_file: .env
+#    #environment:
+#    #  - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+#    #  - AWS_S3_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+#    #  - AWS_S3_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+#    #  # A workaround for bucket names containing '.' until the related s3fs-fuse issue is resolved
+#    #  # Keep in mind this is a secrutiy risk (default is https)
+#    #  # - AWS_S3_URL=http://s3.amazonaws.com
+#    volumes:
+#    # This also mounts the S3 bucket to `/mnt/s3data` on the host machine
+#      - /mnt/s3data:/opt/s3fs/bucket:shared
 
   fiftyone:
     build: .
@@ -31,7 +31,7 @@ services:
     ports:
       - 5151:5151
     depends_on:
-      - s3fs
+      #- s3fs
       - mongo
     volumes:
       - /mnt/s3data:/data:shared

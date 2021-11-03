@@ -13,6 +13,7 @@ dataset_type = fo.types.COCODetectionDataset  # for example
 dataset = fo.load_dataset(name) if name in fo.list_datasets() else fo.Dataset.from_dir(dataset_dir=dataset_dir, dataset_type=dataset_type, labels_path=labels_path, name=name)
 
 session = fo.launch_app(dataset, remote=True)
+#session = fo.launch_app(remote=True)
 port = os.environ['FIFTYONE_DEFAULT_APP_PORT']
 print(f'Session started on port {port}')
 session.wait()

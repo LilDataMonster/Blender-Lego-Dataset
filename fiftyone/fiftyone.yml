@@ -24,20 +24,21 @@ services:
     #stdin_open: true # docker run -i
     #tty: true        # docker run -t
     #command: bash
+    #command: python
     environment:
       - NAME=lego
       - DATASET_DIR=/data
       - LABELS_PATH=/data/data/coco_data/coco_annotations.json
       - FIFTYONE_DATABASE_URI=mongodb://root:qwerasdf@mongo:27017/?authSource=admin
       - FIFTYONE_DEFAULT_APP_PORT=5151
-    ports:
-      - 5151:5151
+#    ports:
+#      - 5151:5151
     depends_on:
       #- s3fs
       - mongo
     volumes:
-      #- /mnt/s3data:/data:shared
-      - ./mount:/data:shared
+      - /mnt/s3data:/data:shared
+      #- ./mount:/data:shared
     networks:
       - default
       - traefik-public
@@ -48,14 +49,14 @@ services:
         traefik.http.services.fiftyone-service.loadbalancer.server.port: '5151'
 
         # http
-        traefik.http.routers.fiftyone-http-router.rule: 'Host(`fiftyone.lildata.monster`)'
+        traefik.http.routers.fiftyone-http-router.rule: 'Host(`fiftyone.brixilated.lildata.monster`)'
         traefik.http.routers.fiftyone-http-router.entrypoints: 'http'
         traefik.http.routers.fiftyone-http-router.middlewares: 'fiftyone-redirect'
         traefik.http.middlewares.fiftyone-redirect.redirectscheme.scheme: 'https'
 
         # https
         traefik.http.routers.fiftyone-https-router.entrypoints: 'https'
-        traefik.http.routers.fiftyone-https-router.rule: 'Host(`fiftyone.lildata.monster`)'
+        traefik.http.routers.fiftyone-https-router.rule: 'Host(`fiftyone.brixilated.lildata.monster`)'
         traefik.http.routers.fiftyone-https-router.tls: 'true'
         traefik.http.routers.fiftyone-https-router.tls.certresolver: 'letsencrypt_resolver'
 
