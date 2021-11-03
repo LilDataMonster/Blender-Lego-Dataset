@@ -26,9 +26,9 @@ services:
     #command: bash
     #command: python
     environment:
-      - NAME=lego
+      - NAME=RudyFlyer
       - DATASET_DIR=/data
-      - LABELS_PATH=/data/data/coco_data/coco_annotations.json
+      - LABELS_PATH=/data/coco_data/coco_annotations.json
       - FIFTYONE_DATABASE_URI=mongodb://root:qwerasdf@mongo:27017/?authSource=admin
       - FIFTYONE_DEFAULT_APP_PORT=5151
 #    ports:
