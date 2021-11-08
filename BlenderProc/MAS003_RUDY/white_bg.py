@@ -9,7 +9,7 @@ parser.add_argument('camera', nargs='?', default="camera_positions", help="Path 
 parser.add_argument('scene', nargs='?', default="MAS003_RUDY.blend", help="Path to the scene.blend file")
 parser.add_argument('cc_material_path', nargs='?', default="resources/cctextures", help="Path to CCTextures folder, see the /scripts for the download script.")
 parser.add_argument('--set', nargs='?', default="train", help="Sub directory to save coco annotations")
-parser.add_argument('--num_repeats', nargs='?', default=1, help="Number of repeats")
+parser.add_argument('--num_repeats', nargs='?', type=int, default=1, help="Number of repeats")
 parser.add_argument('output_dir', nargs='?', default="output", help="Path to where the final files will be saved")
 args = parser.parse_args()
 
