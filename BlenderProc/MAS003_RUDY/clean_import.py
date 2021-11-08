@@ -39,13 +39,13 @@ for parts in custom_parts:
     print(f'Removing custom parts: {parts}')
     objects.remove(objects[parts])
 
-# select random pieces from set
-rng = np.random.default_rng()
-keep_obj = rng.choice(objects, 60, replace=False)
-for obj in objects:
-    if obj not in keep_obj:
-        print(f'Pruning objects, removing {obj.name}')
-        objects.remove(obj, do_unlink=True)
+## select random pieces from set
+#rng = np.random.default_rng()
+#keep_obj = rng.choice(objects, 60, replace=False)
+#for obj in objects:
+#    if obj not in keep_obj:
+#        print(f'Pruning objects, removing {obj.name}')
+#        objects.remove(obj, do_unlink=True)
 
 # remove all lights
 lights = bpy.data.lights

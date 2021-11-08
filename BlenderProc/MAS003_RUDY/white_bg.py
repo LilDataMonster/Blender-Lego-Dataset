@@ -8,7 +8,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('camera', nargs='?', default="camera_positions", help="Path to the camera file")
 parser.add_argument('scene', nargs='?', default="MAS003_RUDY.blend", help="Path to the scene.blend file")
 parser.add_argument('cc_material_path', nargs='?', default="resources/cctextures", help="Path to CCTextures folder, see the /scripts for the download script.")
-parser.add_argument('output_dir', nargs='?', default="output", help="Path to where the final files will be saved ")
+parser.add_argument('num_repeats', nargs='?', default=1, help="Number of repeats")
+parser.add_argument('output_dir', nargs='?', default="output", help="Path to where the final files will be saved")
 args = parser.parse_args()
 
 append_to_existing_output = True
@@ -41,14 +42,14 @@ light.set_location(bproc.sampler.shell(
     center=[
         np.random.uniform(-1,1),
         np.random.uniform(-1,1),
-        np.random.uniform(-1,1),
+        10,
         ],
-    radius_min=30,
-    radius_max=50,
-    elevation_min=20,
-    elevation_max=30
+    radius_min=0,
+    radius_max=10,
+    elevation_min=10,
+    elevation_max=20
 ))
-light.set_energy(15000)
+light.set_energy(4000)
 
 #####################################
 ## Define a light
@@ -87,7 +88,7 @@ cc_textures = bproc.loader.load_ccmaterials(args.cc_material_path,
 # create the ground
 ####################################
 print('Setting up ground plane')
-ground_plane = bproc.object.create_primitive('PLANE', scale=[10, 6, 1])
+ground_plane = bproc.object.create_primitive('PLANE', scale=[8, 8, 1])
 
 # The ground should only act as an obstacle and is therefore marked passive.
 # To let the spheres fall into the valleys of the ground, make the collision shape MESH instead of CONVEX_HULL.
@@ -100,7 +101,7 @@ def sample_initial_pose(obj: bproc.types.MeshObject):
     # obj.set_location(np.random.uniform([-2.5, -1.5, -0.2], [2.5, 1.5, 0.2]))
     obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
 
-for _ in range(2):
+for _ in range(args.num_repeats):
     ## reset
     bproc.utility.reset_keyframes()
 
