@@ -73,14 +73,6 @@ print('Setting up camera')
 bproc.camera.set_resolution(1280, 720)
 bproc.camera.set_intrinsics_from_blender_params(lens=2, lens_unit='FOV')
 
-# read the camera positions file and convert into homogeneous camera-world transformation
-with open(args.camera, "r") as f:
-    for line in f.readlines():
-        line = [float(x) for x in line.split()]
-        position, euler_rotation = line[:3], line[3:6]
-        matrix_world = bproc.math.build_transformation_mat(position, euler_rotation)
-        bproc.camera.add_camera_pose(matrix_world)
-
 ####################################
 # load all recommended cc materials
 ####################################
@@ -108,14 +100,21 @@ def sample_initial_pose(obj: bproc.types.MeshObject):
     # obj.set_location(np.random.uniform([-2.5, -1.5, -0.2], [2.5, 1.5, 0.2]))
     obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
 
-for _ in range(1):
+for _ in range(2):
     ## reset
-    #bproc.utility.reset_keyframes()
+    bproc.utility.reset_keyframes()
+
+    # read the camera positions file and convert into homogeneous camera-world transformation
+    with open(args.camera, "r") as f:
+        for line in f.readlines():
+            line = [float(x) for x in line.split()]
+            position, euler_rotation = line[:3], line[3:6]
+            matrix_world = bproc.math.build_transformation_mat(position, euler_rotation)
+            bproc.camera.add_camera_pose(matrix_world)
 
     # texture ground plane
     random_cc_texture = np.random.choice(cc_textures)
     ground_plane.replace_materials(random_cc_texture)
-
 
     ####################################
     # sample objects ontop of surface
