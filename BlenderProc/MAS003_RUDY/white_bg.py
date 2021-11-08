@@ -8,7 +8,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('camera', nargs='?', default="camera_positions", help="Path to the camera file")
 parser.add_argument('scene', nargs='?', default="MAS003_RUDY.blend", help="Path to the scene.blend file")
 parser.add_argument('cc_material_path', nargs='?', default="resources/cctextures", help="Path to CCTextures folder, see the /scripts for the download script.")
-parser.add_argument('num_repeats', nargs='?', default=1, help="Number of repeats")
+parser.add_argument('--set', nargs='?', default="train", help="Sub directory to save coco annotations")
+parser.add_argument('--num_repeats', nargs='?', default=1, help="Number of repeats")
 parser.add_argument('output_dir', nargs='?', default="output", help="Path to where the final files will be saved")
 args = parser.parse_args()
 
@@ -168,7 +169,7 @@ for _ in range(args.num_repeats):
     #                         append_to_existing_output=append_to_existing_output)
 
     # Write data to coco file
-    bproc.writer.write_coco_annotations(os.path.join(args.output_dir, 'coco_data'),
+    bproc.writer.write_coco_annotations(os.path.join(args.output_dir, args.set),
                             instance_segmaps=seg_data["instance_segmaps"],
                             instance_attribute_maps=seg_data["instance_attribute_maps"],
                             colors=data["colors"],
