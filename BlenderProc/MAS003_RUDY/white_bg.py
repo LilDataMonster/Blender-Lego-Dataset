@@ -38,7 +38,11 @@ light = bproc.types.Light()
 light.set_type("POINT")
 # Sample its location in a shell around the point [0, 0, 0]
 light.set_location(bproc.sampler.shell(
-    center=[0, 1, 0],
+    center=[
+        np.random.uniform(-1,1),
+        np.random.uniform(-1,1),
+        np.random.uniform(-1,1),
+        ],
     radius_min=30,
     radius_max=50,
     elevation_min=20,
@@ -104,7 +108,7 @@ def sample_initial_pose(obj: bproc.types.MeshObject):
     # obj.set_location(np.random.uniform([-2.5, -1.5, -0.2], [2.5, 1.5, 0.2]))
     obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
 
-for _ in range(10):
+for _ in range(1):
     ## reset
     #bproc.utility.reset_keyframes()
 
